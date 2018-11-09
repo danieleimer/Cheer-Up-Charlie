@@ -10,6 +10,9 @@ const sessionStore = new SequelizeStore({db})
 const PORT = process.env.PORT || 8080
 const app = express()
 const socketio = require('socket.io')
+const {RTMClient, WebClient} = require('@slack/client')
+var ToneAnalyzerV3 = require('watson-developer-cloud/tone-analyzer/v3')
+const axios = require('axios')
 module.exports = app
 
 // This is a global Mocha hook, used for resource cleanup.
@@ -41,6 +44,99 @@ passport.deserializeUser(async (id, done) => {
 })
 
 const createApp = () => {
+  const channels = {}
+
+  const sendFunny = async (rtm, message) => {
+    const memeList = []
+    const results = await axios.get(
+      'https://www.reddit.com/r/funny/top.json?limit=100'
+    )
+    results.data.data.children.forEach(post => {
+      if (post.data.url.endsWith('gifv')) {
+        memeList.push(post.data.url)
+      }
+      if (post.data.url.endsWith('gif')) {
+        memeList.push(post.data.url)
+      }
+      if (post.data.url.endsWith('jpg')) {
+        memeList.push(post.data.url)
+      }
+    })
+    const meme = memeList[Math.floor(Math.random() * memeList.length)]
+    console.log(meme)
+
+    rtm.sendMessage(meme, message.channel)
+  }
+
+  var toneAnalyzer = new ToneAnalyzerV3({
+    iam_apikey: process.env.WATSON_API_KEY,
+    version: '2017-09-21',
+    url: 'https://gateway.watsonplatform.net/tone-analyzer/api/'
+  })
+
+  const token = process.env.SLACK_BOT_TOKEN
+  const rtm = new RTMClient(token)
+  rtm.start()
+  const web = new WebClient(token)
+
+  rtm.on('message', event => {
+    const message = event
+    if (
+      (message.subtype && message.subtype === 'bot_message') ||
+      (!message.subtype && message.user === rtm.activeUserId)
+    ) {
+      return
+    }
+
+    if (!channels[message.channel]) {
+      channels[message.channel] = 0
+    }
+    let currentMood = channels[message.channel]
+    toneAnalyzer.tone(
+      {
+        tone_input: message.text,
+        content_type: 'text/plain'
+      },
+      function(err, tone) {
+        if (err) {
+          console.log(err)
+        } else {
+          console.log(tone.document_tone.tones.length)
+          tone.document_tone.tones.forEach(emote => {
+            console.log(emote.tone_id)
+            if (emote.tone_id === 'joy') {
+              currentMood = currentMood + emote.score * 10
+            }
+            if (emote.tone_id === 'sadness') {
+              currentMood = currentMood - emote.score * 10
+            }
+            if (emote.tone_id === 'anger') {
+              currentMood = currentMood - emote.score * 10
+            }
+            if (emote.tone_id === 'fear') {
+              currentMood = currentMood - emote.score * 10
+            }
+          })
+          if (currentMood <= -30) {
+            sendFunny(rtm, message)
+            currentMood = 0
+          }
+
+          channels[message.channel] = currentMood
+          console.log('tone endpoint:')
+          console.log(JSON.stringify(tone.document_tone.tones, null, 2))
+          console.log('current mood:', currentMood)
+        }
+      }
+    )
+    console.log(`current mood: ${currentMood}, emotion: $`)
+  })
+
+  app.get('/channels', (req, res, next) => {
+    console.log(channels)
+    res.json(channels)
+  })
+
   // logging middleware
   app.use(morgan('dev'))
 

@@ -1,5 +1,5 @@
 {
-  "name": "boilermaker",
+  "name": "cheerupcharlie",
   "version": "1.0.0",
   "description": "Some boilerplate code to get you started - get shakin'!",
   "engines": {
@@ -37,12 +37,17 @@
   "author": "Fullstack Academy of Code",
   "license": "MIT",
   "dependencies": {
+    "@material-ui/core": "^3.4.0",
+    "@slack/client": "^4.8.0",
     "axios": "^0.15.3",
+    "brain.js": "^1.4.8",
+    "bulma": "^0.7.2",
     "compression": "^1.7.3",
     "connect-session-sequelize": "^4.1.0",
     "express": "^4.16.3",
     "express-session": "^1.15.1",
     "history": "^4.6.3",
+    "moodjs": "^0.1.1",
     "morgan": "^1.8.1",
     "passport": "^0.3.2",
     "passport-google-oauth": "^1.0.0",
@@ -57,7 +62,8 @@
     "redux-logger": "^2.8.1",
     "redux-thunk": "^2.3.0",
     "sequelize": "^4.38.0",
-    "socket.io": "^2.1.1"
+    "socket.io": "^2.1.1",
+    "watson-developer-cloud": "^3.13.0"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0-beta.55",
