@@ -8,9 +8,6 @@ import GridListTile from '@material-ui/core/GridListTile'
 import Card from '@material-ui/core/Card'
 import CardActionArea from '@material-ui/core/CardActionArea'
 import CardContent from '@material-ui/core/CardContent'
-import CardActions from '@material-ui/core/CardActions'
-import TextField from '@material-ui/core/TextField'
-import Button from '@material-ui/core/Button'
 import Typography from '@material-ui/core/Typography'
 
 const styles = theme => ({
@@ -64,6 +61,15 @@ const styles = theme => ({
   },
   link: {
     color: 'inherit'
+  },
+  sad: {
+    background: 'red'
+  },
+  happy: {
+    background: 'green'
+  },
+  neutral: {
+    background: 'yellow'
   }
 })
 
@@ -98,18 +104,50 @@ class Main extends Component {
       >
         {keys.map(key => (
           <GridListTile className={classes.gridListTitle} key={key} cols={1}>
-            <Card className={classes.card}>
-              <CardActionArea>
-                <CardContent>
-                  <Typography gutterBottom variant="h5" component="h2">
-                    Channel: {key}
-                  </Typography>
-                  <Typography gutterBottom variant="h5" component="h2">
-                    Mood score: {this.state.channels[key]}
-                  </Typography>
-                </CardContent>
-              </CardActionArea>
-            </Card>
+            {this.state.channels[key] < 0 ? (
+              <Card className={classes.card}>
+                <CardActionArea className={classes.sad}>
+                  <CardContent>
+                    <Typography gutterBottom variant="h5" component="h2">
+                      Channel: {key}
+                    </Typography>
+                    <Typography gutterBottom variant="h5" component="h2">
+                      Mood score: {this.state.channels[key]}
+                    </Typography>
+                  </CardContent>
+                </CardActionArea>
+              </Card>
+            ) : (
+              <div>
+                {this.state.channels[key] === 0 ? (
+                  <Card className={classes.card}>
+                    <CardActionArea className={classes.neutral}>
+                      <CardContent>
+                        <Typography gutterBottom variant="h5" component="h2">
+                          Channel: {key}
+                        </Typography>
+                        <Typography gutterBottom variant="h5" component="h2">
+                          Mood score: {this.state.channels[key]}
+                        </Typography>
+                      </CardContent>
+                    </CardActionArea>
+                  </Card>
+                ) : (
+                  <Card className={classes.card}>
+                    <CardActionArea className={classes.happy}>
+                      <CardContent>
+                        <Typography gutterBottom variant="h5" component="h2">
+                          Channel: {key}
+                        </Typography>
+                        <Typography gutterBottom variant="h5" component="h2">
+                          Mood score: {this.state.channels[key]}
+                        </Typography>
+                      </CardContent>
+                    </CardActionArea>
+                  </Card>
+                )}
+              </div>
+            )}
           </GridListTile>
         ))}
       </GridList>

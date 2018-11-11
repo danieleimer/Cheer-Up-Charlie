@@ -49,7 +49,7 @@ const createApp = () => {
   const sendFunny = async (rtm, message) => {
     const memeList = []
     const results = await axios.get(
-      'https://www.reddit.com/r/funny/top.json?limit=100'
+      'https://www.reddit.com/r/wholesomememes/top.json?limit=100'
     )
     results.data.data.children.forEach(post => {
       if (post.data.url.endsWith('gifv')) {
@@ -61,9 +61,11 @@ const createApp = () => {
       if (post.data.url.endsWith('jpg')) {
         memeList.push(post.data.url)
       }
+      if (post.data.url.endsWith('png')) {
+        memeList.push(post.data.url)
+      }
     })
     const meme = memeList[Math.floor(Math.random() * memeList.length)]
-    console.log(meme)
 
     rtm.sendMessage(meme, message.channel)
   }
@@ -101,9 +103,7 @@ const createApp = () => {
         if (err) {
           console.log(err)
         } else {
-          console.log(tone.document_tone.tones.length)
           tone.document_tone.tones.forEach(emote => {
-            console.log(emote.tone_id)
             if (emote.tone_id === 'joy') {
               currentMood = currentMood + emote.score * 10
             }
@@ -121,6 +121,13 @@ const createApp = () => {
             sendFunny(rtm, message)
             currentMood = 0
           }
+          if (currentMood >= 100) {
+            rtm.sendMessage(
+              'This is such a positive environment! Keep up the good work everyone!',
+              message.channel
+            )
+            currentMood = 20
+          }
 
           channels[message.channel] = currentMood
           console.log('tone endpoint:')
@@ -129,7 +136,6 @@ const createApp = () => {
         }
       }
     )
-    console.log(`current mood: ${currentMood}, emotion: $`)
   })
 
   app.get('/channels', (req, res, next) => {
