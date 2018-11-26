@@ -139,7 +139,7 @@ const createApp = () => {
   })
 
   app.get('/channels', (req, res, next) => {
-    console.log(channels)
+    // console.log(channels)
     res.json(channels)
   })
 
